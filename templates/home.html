@@ -1,21 +1,11 @@
+{% extends "base.html" %}
 
-<!-- This tells the browser we're using HTML5 -->
+{% block title %}Home - To-Do App{% endblock %}
 
-<html>
-<head>
-    <title>Taskify</title>
-    <!-- The tab title -->
-</head>
-
-<body>
-    <h1>Welcome to Taskify - the To-Do App!</h1>
-    <!-- Main headline the user sees -->
-
-    <p>This app helps you manage your daily tasks.</p>
-    <!-- Sub-text to explain purpose -->
-
-    <!-- Two buttons to guide user to login or signup -->
+{% block content %}
+    <h2>Welcome!</h2>
+    <p>This app helps you manage your tasks efficiently.</p>
+    
     <a href="/login"><button>Login</button></a>
     <a href="/signup"><button>Sign Up</button></a>
-</body>
-</html>
+{% endblock %}
