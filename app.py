@@ -12,11 +12,14 @@ def home():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if "user" in session:
+        flash("You are already logged in!", "info")
+        return redirect("/dashboard")
+
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
 
-        # 🔍 Look for user in DB
         user = User.query.filter_by(email=email).first()
 
         if user and user.password == password:
@@ -28,11 +31,16 @@ def login():
 
     return render_template("login.html")
 
+
+
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
-        return redirect(url_for("login"))
-    return f"Welcome {session['user']}! This is your dashboard."
+        flash("Please log in to access the dashboard.", "warning")
+        return redirect("/login")
+
+    return render_template("dashboard.html", user=session["user"])
+
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -57,6 +65,12 @@ def signup():
         return redirect("/dashboard")
 
     return render_template("signup.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    flash("You have been logged out.", "info")
+    return redirect("/login")
 
 
 if __name__ == "__main__":
