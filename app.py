@@ -1,8 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from config import Config
-from models import db
-
-users = {}  # just for testing — will store email-password pairs
+from models import db, User
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -15,16 +13,18 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        
-       
-        if email in users and users[email] == password:
-            session["user"] = email
-            return redirect(url_for("dashboard"))
+        email = request.form["email"]
+        password = request.form["password"]
 
+        # 🔍 Look for user in DB
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.password == password:
+            session["user"] = user.email
+            flash("Login successful!", "success")
+            return redirect("/dashboard")
         else:
-            return "Invalid credentials. Try again."
+            flash("Invalid email or password", "danger")
 
     return render_template("login.html")
 
@@ -38,15 +38,23 @@ def dashboard():
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = request.form["email"]
+        password = request.form["password"]
 
-        if email in users:
-            return "User already exists. Please login."
-        
-        # Save user
-        users[email] = password
-        return redirect(url_for("login"))
+        # Check if user already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash("User already exists. Please log in.", "warning")
+            return redirect("/login")
+
+        # Create and save new user
+        new_user = User(email=email, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        session["user"] = email
+        flash("Signup successful!", "success")
+        return redirect("/dashboard")
 
     return render_template("signup.html")
 
