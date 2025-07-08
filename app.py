@@ -43,8 +43,13 @@ def dashboard():
 
 
 
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    if "user" in session:
+        flash("You are already logged in!", "info")
+        return redirect("/dashboard")
+    
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]

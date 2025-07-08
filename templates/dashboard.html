@@ -1,1 +1,29 @@
-<p>Welcome, {{ user }} | <a href="/logout">Logout</a></p>
+{% extends "base.html" %}
+
+{% block title %}Dashboard - To-Do App{% endblock %}
+
+{% block content %}
+  <!-- 🔔 Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <p style="color: {% if category == 'success' %}green{% elif category == 'danger' %}red{% else %}orange{% endif %};">
+          {{ message }}
+        </p>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- 👋 Welcome Message -->
+  <h2>Welcome, {{ user }}!</h2>
+
+  <!-- 🚪 Logout Button -->
+  <a href="/logout"><button>Logout</button></a>
+
+  <hr>
+
+  <!-- 📋 Tasks Placeholder -->
+  <h3>Your Tasks</h3>
+  <p>(Task list will appear here later)</p>
+
+{% endblock %}
