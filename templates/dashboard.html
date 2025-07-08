@@ -22,8 +22,35 @@
 
   <hr>
 
+  <h3>Add New Task</h3>
+  <form method="POST" action="/add-task">
+    <label>Title:</label><br>
+    <input type="text" name="title" required><br><br>
+  
+    <label>Description:</label><br>
+    <textarea name="description" rows="3" cols="30" placeholder="Optional"></textarea><br><br>
+  
+    <button type="submit">Create Task</button>
+  </form>
+  
+  <hr>
+  
+
   <!-- 📋 Tasks Placeholder -->
   <h3>Your Tasks</h3>
-  <p>(Task list will appear here later)</p>
+
+  {% if tasks %}
+    <ul>
+      {% for task in tasks %}
+        <li>
+          <strong>{{ task.title }}</strong><br>
+          {{ task.description }}<br>
+          <small>{{ task.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tasks yet.</p>
+  {% endif %}
 
 {% endblock %}

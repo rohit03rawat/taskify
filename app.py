@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from config import Config
-from models import db, User
+from models import db, User, Task
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -39,9 +39,31 @@ def dashboard():
         flash("Please log in to access the dashboard.", "warning")
         return redirect("/login")
 
-    return render_template("dashboard.html", user=session["user"])
+    user = User.query.filter_by(email=session["user"]).first()
+    tasks = user.tasks
+    
+    return render_template("dashboard.html", user=user.email, tasks=tasks)
 
+@app.route("/add-task", methods=["POST"])
+def add_task():
+    if "user" not in session:
+        flash("You must be logged in to add tasks.", "danger")
+        return redirect("/login")
 
+    title = request.form["title"]
+    description = request.form.get("description")  # optional field
+
+    user = User.query.filter_by(email=session["user"]).first()
+
+    new_task = Task(title=title, description=description, user=user)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    flash("Task created successfully!", "success")
+    return redirect("/dashboard")
+
+    
 
 
 @app.route("/signup", methods=["GET", "POST"])
