@@ -40,7 +40,16 @@ def dashboard():
         return redirect("/login")
 
     user = User.query.filter_by(email=session["user"]).first()
+    
+    if not user:
+        
+        session.clear()
+        flash("Session expired. Please log in again.", "warning")
+        return redirect("/login")
+
     tasks = user.tasks
+    
+    
     
     return render_template("dashboard.html", user=user.email, tasks=tasks)
 
@@ -63,7 +72,41 @@ def add_task():
     flash("Task created successfully!", "success")
     return redirect("/dashboard")
 
+@app.route("/delete-task/<int:task_id>", methods=["POST"])
+def delete_task(task_id):
+    if "user" not in session:
+        flash("You must be logged in to delete tasks.", "danger")
+        return redirect("/login")
+
+    user = User.query.filter_by(email=session["user"]).first()
+    task = Task.query.get(task_id)
+
+    # ✅ Allow deletion only if task belongs to current user
+    if task and task.user_id == user.id:
+        db.session.delete(task)
+        db.session.commit()
+        flash("Task deleted successfully!", "success")
+    else:
+        flash("Task not found or permission denied.", "danger")
+
+    return redirect("/dashboard")
     
+@app.route("/mark-done/<int:task_id>", methods=["POST"])
+def mark_done(task_id):
+    if "user" not in session:
+        flash("Please log in first.", "warning")
+        return redirect("/login")
+
+    task = Task.query.get(task_id)
+
+    if task:
+        task.is_completed = True
+        db.session.commit()
+        flash("✅ Task marked as completed!", "success")
+    else:
+        flash("Task not found.", "danger")
+
+    return redirect("/dashboard")
 
 
 @app.route("/signup", methods=["GET", "POST"])

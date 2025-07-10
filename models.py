@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy  # type: ignore # 1️⃣ We import SQLAlchemy
 from datetime import datetime, timezone
+from sqlalchemy import Boolean
+
 
 
 db = SQLAlchemy()  # 2️⃣ Create an object that manages all DB stuff
@@ -19,3 +21,5 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     user = db.relationship('User', backref=db.backref('tasks', lazy=True))
+
+    is_completed = db.Column(db.Boolean, default=False)
